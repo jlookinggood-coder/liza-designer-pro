@@ -3,93 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queen's Baker Studio: Amor Edition</title>
+    <title>Queen's Baker Studio</title>
     <style>
         :root { --accent: #d00056; --soft: #ffb3c1; --light: #fff5f7; }
-        body { margin: 0; background: var(--light); font-family: 'Segoe UI', sans-serif; display: flex; overflow: hidden; }
+        body { margin: 0; background: var(--light); font-family: 'Segoe UI', sans-serif; display: flex; overflow: hidden; height: 100vh; width: 100vw; }
         
-        /* Sidebar Styling */
-        #sidebar { width: 380px; height: 100vh; background: white; border-right: 2px solid var(--soft); 
-                   padding: 25px; box-sizing: border-box; overflow-y: auto; z-index: 10; shadow: 5px 0 15px rgba(0,0,0,0.05); }
-        
+        /* THE NEW SECURITY GATE */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--light); 
+                         display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 30px; border: 2px solid var(--soft); 
+                     text-align: center; box-shadow: 0 10px 30px rgba(208,0,86,0.1); }
+        .login-box h2 { color: var(--accent); margin-bottom: 20px; }
+        #pass-input { padding: 12px; border: 2px solid var(--soft); border-radius: 10px; width: 200px; font-size: 1rem; outline: none; text-align: center; }
+        #pass-input:focus { border-color: var(--accent); }
+        .login-btn { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 25px; 
+                     cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.3s; }
+        .login-btn:hover { transform: scale(1.05); }
+
+        /* STUDIO LAYOUT */
+        #main-studio { display: none; width: 100%; height: 100%; display: flex; opacity: 0; transition: opacity 0.5s; }
+        #sidebar { width: 380px; background: white; border-right: 2px solid var(--soft); padding: 25px; box-sizing: border-box; overflow-y: auto; }
         h1 { color: var(--accent); font-size: 1.4rem; text-align: center; margin: 0 0 15px 0; border-bottom: 2px solid var(--light); padding-bottom: 10px; }
         .section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--light); }
         label { display: block; font-size: 0.7rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-        
         input[type="text"], select, input[type="range"] { width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--soft); box-sizing: border-box; }
         .btn { padding: 12px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; margin-top: 5px; }
         .primary { background: var(--accent); color: white; font-size: 1rem; }
-        .primary:hover { background: #a00042; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(208,0,86,0.3); }
-        
-        /* Pre-Flight Preview */
-        #img-preview-wrap { background: #fdf2f4; border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 10px; display: none; border: 1px dashed var(--soft); }
-        #canvas-preview { max-width: 100%; border-radius: 5px; background: white; }
-
-        #viewer { flex-grow: 1; height: 100vh; position: relative; background: radial-gradient(circle, #fff 0%, #fff5f7 100%); }
-        .heart-badge { position: absolute; bottom: 20px; right: 20px; color: var(--accent); font-weight: bold; font-size: 0.8rem; }
-        
-        /* Library */
-        #library { max-height: 100px; overflow-y: auto; background: #fff; border: 1px solid var(--soft); border-radius: 8px; font-size: 0.7rem; }
-        .lib-item { padding: 8px; border-bottom: 1px solid var(--light); cursor: pointer; }
+        #viewer { flex-grow: 1; position: relative; background: radial-gradient(circle, #fff 0%, #fff5f7 100%); }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <h1>💖 Queen's Baker Studio</h1>
-        
-        <div class="section">
-            <label>1. Design Content</label>
-            <input type="text" id="text-input" placeholder="Type a message..." oninput="generateFromText()">
-            <label>Or Upload a Sketch</label>
-            <input type="file" id="file-input" accept="image/*" onchange="processImage(event)">
-            
-            <div id="img-preview-wrap">
-                <label>Pre-Flight Cleanup</label>
-                <canvas id="canvas-preview"></canvas>
-                <input type="range" id="threshold-slider" min="0" max="255" value="128" oninput="applyThreshold()">
-            </div>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>💖 Queen's Studio</h2>
+            <p style="color: #888; font-size: 0.9rem;">Please enter your secret code:</p>
+            <input type="password" id="pass-input" placeholder="••••••••">
+            <br>
+            <button class="login-btn" onclick="checkPass()">Enter Studio</button>
+            <p id="error-msg" style="color: var(--accent); font-size: 0.8rem; margin-top: 10px; display: none;">That's not it, Amor. Try again!</p>
         </div>
-
-        <div class="section">
-            <label>2. Tool Type</label>
-            <select id="mode-select" onchange="updateModel()">
-                <option value="cutter">Sharp Cookie Cutter</option>
-                <option value="roller">Artisan Texture Roller</option>
-                <option value="topper">Cake Topper (with Pin)</option>
-                <option value="stamp">Clay/Fondant Stamp</option>
-            </select>
-        </div>
-
-        <div class="section">
-            <label>3. Precision & Comfort</label>
-            <div style="display: flex; gap: 10px;">
-                <div style="flex:1">
-                    <span style="font-size:0.6rem">Blade Height</span>
-                    <input type="range" id="height-slider" min="10" max="30" value="15" oninput="updateModel()">
-                </div>
-                <div style="flex:1">
-                    <span style="font-size:0.6rem">Handle Grip</span>
-                    <input type="range" id="round-slider" min="0" max="4" value="2" oninput="updateModel()">
-                </div>
-            </div>
-        </div>
-
-        <button class="btn primary" onclick="exportSTL()">💾 DOWNLOAD STL FILE</button>
-        
-        <div class="section" style="margin-top:10px;">
-            <label>Project History</label>
-            <div id="library"></div>
-        </div>
-
-        <p style="text-align:center; font-size: 0.65rem; color: #999; margin-top: 10px;">
-            40 Years of Devotion • Survivor Strong<br>
-            <i>Designed with Amor for the Baker Queen</i>
-        </p>
     </div>
 
-    <div id="viewer">
-        <div class="heart-badge">Designed for You, Forever ❤️</div>
+    <div id="main-studio">
+        <div id="sidebar">
+            <h1>🎨 Baker Studio Pro</h1>
+            <div class="section">
+                <label>Design Content</label>
+                <input type="text" id="text-input" placeholder="Type something..." oninput="generateFromText()">
+                <label>Upload Image</label>
+                <input type="file" id="file-input" accept="image/*" onchange="processImage(event)">
+            </div>
+            <div class="section">
+                <label>Tool Mode</label>
+                <select id="mode-select" onchange="updateModel()">
+                    <option value="cutter">Cookie Cutter</option>
+                    <option value="roller">Texture Roller</option>
+                    <option value="topper">Cake Topper</option>
+                    <option value="stamp">Artisan Stamp</option>
+                </select>
+            </div>
+            <button class="btn primary" onclick="exportSTL()">💾 DOWNLOAD STL</button>
+            <p style="text-align:center; font-size: 0.65rem; color: #999; margin-top: 20px;">
+                40 Years of Devotion • Survivor Strong
+            </p>
+        </div>
+        <div id="viewer"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -97,17 +76,27 @@
     <script src="https://cdn.jsdelivr.net/npm/potrace@1.1.2/dist/potrace.min.js"></script>
 
     <script>
-        // --- AMOR@1985 SECURITY GATE ---
         const pass = "Amor@1985";
-        let entry = prompt("Please enter the Secret Code to open your Studio:");
-        if (entry !== pass) {
-            document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; background:#fff5f7;'> <h1 style='color:#d00056;'>❤️ Access Denied</h1><p>This studio is reserved for a very special lady.</p></div>";
-            window.stop();
+
+        function checkPass() {
+            const input = document.getElementById('pass-input').value;
+            if (input === pass) {
+                document.getElementById('login-overlay').style.display = 'none';
+                const studio = document.getElementById('main-studio');
+                studio.style.display = 'flex';
+                setTimeout(() => studio.style.opacity = '1', 10);
+                init(); // Start 3D only after login
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
         }
 
-        let scene, camera, renderer, group, font, rawImgData, currentShapes;
+        // Allow "Enter" key to work
+        document.getElementById('pass-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPass();
+        });
 
-        init();
+        let scene, camera, renderer, group, font, currentShapes;
 
         function init() {
             scene = new THREE.Scene();
@@ -128,50 +117,7 @@
                 font = f;
                 generateFromText();
             });
-        }
-
-        function processImage(e) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    document.getElementById('img-preview-wrap').style.display = 'block';
-                    const canvas = document.getElementById('canvas-preview');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width; canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    rawImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    applyThreshold();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-
-        function applyThreshold() {
-            const canvas = document.getElementById('canvas-preview');
-            const ctx = canvas.getContext('2d');
-            const thresh = document.getElementById('threshold-slider').value;
-            const imgData = new ImageData(new Uint8ClampedArray(rawImgData.data), rawImgData.width, rawImgData.height);
-            for (let i = 0; i < imgData.data.length; i += 4) {
-                const avg = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
-                const val = avg > thresh ? 255 : 0;
-                imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = val;
-            }
-            ctx.putImageData(imgData, 0, 0);
-            Potrace.loadImage(canvas.toDataURL());
-            Potrace.process(() => {
-                const pathStr = Potrace.getSVGPath();
-                const shapePath = new THREE.ShapePath();
-                const cmds = pathStr.match(/[a-df-z][^a-df-z]*/ig);
-                cmds.forEach(c => {
-                    const type = c[0], a = c.slice(1).trim().split(/[\s,]+/).map(parseFloat);
-                    if (type === 'M') shapePath.moveTo(a[0], -a[1]);
-                    if (type === 'L') shapePath.lineTo(a[0], -a[1]);
-                });
-                currentShapes = shapePath.toShapes();
-                updateModel();
-            });
+            animate();
         }
 
         function generateFromText() {
@@ -185,16 +131,11 @@
             while(group.children.length > 0) group.remove(group.children[0]);
             
             const mode = document.getElementById('mode-select').value;
-            const h = parseInt(document.getElementById('height-slider').value);
-            const r = parseInt(document.getElementById('round-slider').value);
-
             currentShapes.forEach(shape => {
                 if (mode === 'roller') {
-                    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(20, 20, 80, 32), new THREE.MeshStandardMaterial({color: 0xd00056}));
-                    group.add(cyl);
+                    group.add(new THREE.Mesh(new THREE.CylinderGeometry(20, 20, 80, 32), new THREE.MeshStandardMaterial({color: 0xd00056})));
                     for(let i=0; i<4; i++) {
-                        const tGeo = new THREE.ExtrudeGeometry(shape, {depth: 3, bevelEnabled: false});
-                        const tMesh = new THREE.Mesh(tGeo, new THREE.MeshStandardMaterial({color: 0xff8097}));
+                        const tMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, {depth: 3, bevelEnabled: false}), new THREE.MeshStandardMaterial({color: 0xff8097}));
                         const ang = (i/4)*Math.PI*2;
                         tMesh.position.set(Math.cos(ang)*20, -10, Math.sin(ang)*20);
                         tMesh.rotation.y = -ang + Math.PI/2;
@@ -202,9 +143,9 @@
                         group.add(tMesh);
                     }
                 } else {
-                    const bGeo = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: true, bevelSize: 0.4 });
+                    const bGeo = new THREE.ExtrudeGeometry(shape, { depth: 15, bevelEnabled: true, bevelSize: 0.4 });
                     group.add(new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0xff8097 })));
-                    const hGeo = new THREE.ExtrudeGeometry(shape, { depth: 4, bevelEnabled: r>0, bevelSize: r, bevelThickness: r });
+                    const hGeo = new THREE.ExtrudeGeometry(shape, { depth: 4, bevelEnabled: true, bevelSize: 2, bevelThickness: 2 });
                     const hMesh = new THREE.Mesh(hGeo, new THREE.MeshStandardMaterial({ color: 0xd00056 }));
                     hMesh.position.z = -3;
                     group.add(hMesh);
@@ -223,7 +164,7 @@
             const res = new THREE.STLExporter().parse(group);
             const link = document.createElement('a');
             link.href = URL.createObjectURL(new Blob([res], {type: 'text/plain'}));
-            link.download = 'BakerStudio_Export.stl';
+            link.download = 'BakerStudio.stl';
             link.click();
         }
 
@@ -234,9 +175,11 @@
         }
 
         window.addEventListener('resize', () => {
-            camera.aspect = (window.innerWidth - 380) / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth - 380, window.innerHeight);
+            if (renderer) {
+                camera.aspect = (window.innerWidth - 380) / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth - 380, window.innerHeight);
+            }
         });
     </script>
 </body>
