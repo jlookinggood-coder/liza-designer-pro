@@ -1,14 +1,3 @@
-I understand why this is happening. In the previous code, I was using a "manual" method (Regex) to read the tracing data from the image. That method is fragile—if the lines in your sketch are curved in a specific way, the code fails to "read" them, so it defaults to doing nothing.
-
-The Fix: I have replaced the manual parser with the official Three.js SVGLoader. This is a dedicated library specifically designed to translate image outlines into 3D shapes reliably. It handles curves, complex lines, and hand-drawn sketches much better.
-
-🛠️ The "Silver Bullet" Update
-This version includes the SVGLoader to ensure your uploaded image is recognized and rendered immediately.
-
-Please replace your index.html with this code:
-
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,13 +23,12 @@ HTML
         label { display: block; font-size: 0.65rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
         input[type="text"], input[type="file"], select, input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--soft); border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
         
-        /* SOURCE SWITCHER */
         .source-switch { display: flex; gap: 10px; margin-bottom: 15px; background: #fffcfd; padding: 10px; border-radius: 10px; border: 1px solid var(--soft); }
         .radio-label { display: flex; align-items: center; font-size: 0.8rem; color: #555; cursor: pointer; }
         .radio-label input { margin-right: 5px; }
 
         #img-preview-wrap { background: #fffcfd; border-radius: 10px; padding: 15px; text-align: center; margin-top: 10px; display: none; border: 1px dashed var(--soft); }
-        #canvas-preview { max-width: 100%; border-radius: 8px; }
+        #canvas-preview { max-width: 100%; border-radius: 8px; border: 1px solid #ddd; }
 
         .btn { padding: 12px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
         .primary { background: var(--accent); color: white; margin-top: 10px; }
@@ -69,19 +57,20 @@ HTML
             <div class="section">
                 <label>1. Design Source</label>
                 <div class="source-switch">
-                    <label class="radio-label"><input type="radio" name="source" value="text" checked onclick="setSource('text')"> Use Text</label>
-                    <label class="radio-label"><input type="radio" name="source" value="image" onclick="setSource('image')"> Use Image</label>
+                    <label class="radio-label"><input type="radio" name="source" value="text" id="src-text" checked onclick="setSource('text')"> Use Text</label>
+                    <label class="radio-label"><input type="radio" name="source" value="image" id="src-image" onclick="setSource('image')"> Use Image</label>
                 </div>
 
                 <div id="text-controls">
-                    <input type="text" id="text-input" placeholder="Type text (e.g. AMOR)..." oninput="generateFromText()">
+                    <input type="text" id="text-input" placeholder="Type text here..." oninput="generateFromText()">
                 </div>
 
                 <div id="image-controls" style="display:none;">
                     <input type="file" id="file-input" accept="image/*" onchange="processImage(event)">
                     <div id="img-preview-wrap">
+                        <label style="color:#555; font-size:0.6rem;">Computer Vision (Black = Cut)</label>
                         <canvas id="canvas-preview"></canvas>
-                        <label style="margin-top:10px;">Cleanup Threshold</label>
+                        <label style="margin-top:10px;">Trace Sensitivity</label>
                         <input type="range" id="threshold-slider" min="0" max="255" value="128" oninput="applyThreshold()">
                     </div>
                 </div>
@@ -136,7 +125,6 @@ HTML
         let currentShapes = []; 
         let currentSource = 'text';
 
-        // --- LOGIN & INIT ---
         window.onload = function() {
             const savedMsg = localStorage.getItem('liza_reflection');
             if (savedMsg) document.getElementById('display-reflection').innerText = savedMsg;
@@ -169,32 +157,44 @@ HTML
             group = new THREE.Group(); scene.add(group);
             
             new THREE.FontLoader().load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', (f) => {
-                font = f; generateFromText();
+                font = f; 
             });
             animate();
         }
 
-        // --- SOURCE SWITCHING ---
         function setSource(mode) {
             currentSource = mode;
+            document.getElementById('src-text').checked = (mode === 'text');
+            document.getElementById('src-image').checked = (mode === 'image');
+            
             document.getElementById('text-controls').style.display = mode === 'text' ? 'block' : 'none';
             document.getElementById('image-controls').style.display = mode === 'image' ? 'block' : 'none';
+            
+            while(group.children.length > 0) group.remove(group.children[0]);
+            currentShapes = [];
+
             if(mode === 'text') generateFromText();
             else if(rawImgData) applyThreshold();
         }
 
-        // --- TEXT LOGIC ---
         function generateFromText() {
             if(currentSource !== 'text') return;
-            const text = document.getElementById('text-input').value || "AMOR";
+            const text = document.getElementById('text-input').value;
+            if (!text) {
+                while(group.children.length > 0) group.remove(group.children[0]);
+                currentShapes = [];
+                return;
+            }
             if(font) {
                 currentShapes = font.generateShapes(text, 25);
                 updateModel();
             }
         }
 
-        // --- IMAGE LOGIC (FIXED WITH SVGLoader) ---
         function processImage(e) {
+            // AUTO SWITCH to Image Mode
+            setSource('image');
+            
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
@@ -202,9 +202,11 @@ HTML
                     document.getElementById('img-preview-wrap').style.display = 'block';
                     const canvas = document.getElementById('canvas-preview'); 
                     const ctx = canvas.getContext('2d');
-                    // Resize to manageable size for performance
+                    
+                    // Force resize to ensure data is manageable
                     const scale = Math.min(300 / img.width, 1);
                     canvas.width = img.width * scale; canvas.height = img.height * scale;
+                    
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
                     rawImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     applyThreshold();
@@ -223,18 +225,18 @@ HTML
             
             for (let i = 0; i < imgData.data.length; i += 4) {
                 const avg = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
+                // Black on White logic
                 const val = avg < thresh ? 0 : 255; 
                 imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = val; 
                 imgData.data[i+3] = 255; 
             }
             ctx.putImageData(imgData, 0, 0);
 
-            // Vectorization
             Potrace.loadImage(canvas.toDataURL());
             Potrace.process(() => {
-                const svgString = Potrace.getSVG(1); // Get SVG string
+                const svgString = Potrace.getSVG(1);
                 const loader = new THREE.SVGLoader();
-                const svgData = loader.parse(svgString); // Robust parsing
+                const svgData = loader.parse(svgString);
                 
                 const shapes = [];
                 svgData.paths.forEach((path) => {
@@ -243,22 +245,25 @@ HTML
                 });
 
                 if(currentSource === 'image') {
+                    if (shapes.length === 0) {
+                        alert("I can't see the sketch! Try moving the 'Trace Sensitivity' slider.");
+                    }
                     currentShapes = shapes;
                     updateModel();
                 }
             });
         }
 
-        // --- 3D GENERATION ---
         function updateModel() {
             if (!currentShapes || !group) return;
 
-            // CLEAR SCENE
             while(group.children.length > 0) { 
                 const old = group.children[0];
                 if(old.geometry) old.geometry.dispose();
                 group.remove(old); 
             }
+
+            if (currentShapes.length === 0) return;
 
             const mode = document.getElementById('mode-select').value;
             const color = document.getElementById('color-picker').value;
@@ -267,13 +272,18 @@ HTML
 
             let mat = new THREE.MeshStandardMaterial({ color: color });
 
-            // Center Model
+            // AUTO-SCALE LOGIC
             const geometry = new THREE.ShapeGeometry(currentShapes);
             geometry.computeBoundingBox();
-            const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
-            const yMid = - 0.5 * ( geometry.boundingBox.max.y - geometry.boundingBox.min.y );
-            // Scale correction for images (usually too big)
-            const scale = currentSource === 'image' ? 0.1 : 1.0; 
+            const width = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
+            const heightY = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+            
+            const xMid = - 0.5 * ( geometry.boundingBox.max.x + geometry.boundingBox.min.x );
+            const yMid = - 0.5 * ( geometry.boundingBox.max.y + geometry.boundingBox.min.y );
+            
+            // Normalize size to approx 60 units wide
+            const scaleFactor = 60 / width; 
+            
             geometry.dispose();
 
             currentShapes.forEach(shape => {
@@ -282,47 +292,37 @@ HTML
                     cyl.rotation.z = Math.PI / 2;
                     if(group.children.length === 0) group.add(cyl);
 
-                    const ext = new THREE.ExtrudeGeometry(shape, {depth: 2 * (1/scale), bevelEnabled:false});
+                    const ext = new THREE.ExtrudeGeometry(shape, {depth: 2 * (1/scaleFactor), bevelEnabled:false});
                     const mesh = new THREE.Mesh(ext, mat);
-                    mesh.scale.set(0.3 * scale, 0.3 * scale, 0.3 * scale);
-                    mesh.position.set(xMid*0.3*scale, 20, yMid*0.3*scale); 
+                    mesh.scale.set(scaleFactor * 0.3, scaleFactor * 0.3, scaleFactor * 0.3);
+                    // Wrap roughly
+                    mesh.position.set(xMid * scaleFactor * 0.3, 20, yMid * scaleFactor * 0.3); 
                     group.add(mesh);
 
                 } else if (mode === 'stencil') {
                     const plate = new THREE.Shape(); 
-                    plate.moveTo(-60/scale, -60/scale); plate.lineTo(60/scale, -60/scale); plate.lineTo(60/scale, 60/scale); plate.lineTo(-60/scale, 60/scale);
+                    plate.moveTo(-60/scaleFactor, -60/scaleFactor); plate.lineTo(60/scaleFactor, -60/scaleFactor); plate.lineTo(60/scaleFactor, 60/scaleFactor); plate.lineTo(-60/scaleFactor, 60/scaleFactor);
                     plate.holes = [shape]; 
                     const mesh = new THREE.Mesh(new THREE.ExtrudeGeometry(plate, {depth:1}), mat);
-                    mesh.scale.set(scale, scale, scale);
+                    mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
                     group.add(mesh);
-
                 } else {
-                    // BLADE
-                    const bladeGeo = new THREE.ExtrudeGeometry(shape, { 
-                        depth: height, 
-                        bevelEnabled: false 
-                    });
+                    const bladeGeo = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
                     const bladeMesh = new THREE.Mesh(bladeGeo, mat);
-                    bladeMesh.scale.set(scale, scale, scale);
-                    // Reposition after scaling
-                    bladeMesh.position.set(xMid*scale, yMid*scale, 0); 
+                    bladeMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    bladeMesh.position.set(xMid * scaleFactor, yMid * scaleFactor, 0); 
                     
-                    // Flip Y for images (SVG coordinates are inverted vs 3D)
-                    if(currentSource === 'image') bladeMesh.rotation.x = Math.PI;
-
+                    if(currentSource === 'image') bladeMesh.rotation.x = Math.PI; // Flip image
+                    
                     group.add(bladeMesh);
 
-                    // HANDLE
-                    const handleGeo = new THREE.ExtrudeGeometry(shape, { 
-                        depth: 3, 
-                        bevelEnabled: true, 
-                        bevelSize: roundness, 
-                        bevelThickness: roundness 
-                    });
+                    const handleGeo = new THREE.ExtrudeGeometry(shape, { depth: 3, bevelEnabled: true, bevelSize: roundness, bevelThickness: roundness });
                     const handleMesh = new THREE.Mesh(handleGeo, mat);
-                    handleMesh.scale.set(scale, scale, scale);
-                    handleMesh.position.set(xMid*scale, yMid*scale, -3);
-                    if(currentSource === 'image') handleMesh.rotation.x = Math.PI;
+                    handleMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    handleMesh.position.set(xMid * scaleFactor, yMid * scaleFactor, -3);
+                    
+                    if(currentSource === 'image') handleMesh.rotation.x = Math.PI; // Flip image
+                    
                     group.add(handleMesh);
                     
                     if(mode === 'topper') {
