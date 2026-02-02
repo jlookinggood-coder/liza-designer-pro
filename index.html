@@ -6,39 +6,36 @@
     <title>Liza's Creative Studio</title>
     <style>
         :root { --accent: #d00056; --soft: #ffb3c1; --light: #fff5f7; }
-        body { margin: 0; background: var(--light); font-family: 'Segoe UI', sans-serif; display: flex; overflow: hidden; height: 100vh; width: 100vw; }
+        body { margin: 0; background: var(--light); font-family: 'Segoe UI', sans-serif; display: flex; overflow: hidden; height: 100vh; }
         
-        /* LOGIN & UI STYLES */
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--light); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: white; padding: 50px; border-radius: 40px; border: 1px solid var(--soft); text-align: center; box-shadow: 0 20px 50px rgba(208,0,86,0.1); max-width: 450px; }
-        .login-box h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; font-weight: 300; letter-spacing: 1px; }
-        #display-reflection { color: #888; font-size: 0.95rem; margin-bottom: 30px; letter-spacing: 0.5px; line-height: 1.4; }
-        
-        #pass-input { padding: 15px; border: 1px solid var(--soft); border-radius: 15px; width: 85%; font-size: 1rem; text-align: center; outline: none; margin-bottom: 20px; background: #fffcfd; }
-        .login-btn { background: var(--accent); color: white; border: none; padding: 14px 40px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.4s; font-size: 1rem; letter-spacing: 1px; }
-        .login-btn:hover { background: #a00042; box-shadow: 0 5px 15px rgba(208,0,86,0.3); }
+        .login-box h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; font-weight: 300; }
+        #display-reflection { color: #888; margin-bottom: 30px; }
+        #pass-input { padding: 15px; border: 1px solid var(--soft); border-radius: 15px; width: 85%; text-align: center; outline: none; margin-bottom: 20px; }
+        .login-btn { background: var(--accent); color: white; border: none; padding: 14px 40px; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 1rem; }
 
-        #main-studio { display: none; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease-in-out; }
+        #main-studio { display: none; width: 100%; height: 100%; opacity: 0; transition: opacity 1s; }
         #sidebar { width: 380px; background: white; border-right: 1px solid var(--soft); padding: 25px; box-sizing: border-box; overflow-y: auto; height: 100vh; }
-        h1 { color: var(--accent); font-size: 1.3rem; text-align: center; margin-bottom: 20px; font-weight: 400; border-bottom: 1px solid var(--light); padding-bottom: 10px; }
+        
+        h1 { color: var(--accent); font-size: 1.3rem; text-align: center; margin-bottom: 15px; border-bottom: 1px solid var(--light); padding-bottom: 10px; }
         .section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--light); }
-        label { display: block; font-size: 0.65rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid var(--soft); border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 0.9rem; }
-        .btn { padding: 12px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.75rem; }
-        .primary { background: var(--accent); color: white; width: 100%; margin-top: 10px; }
+        label { display: block; font-size: 0.65rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+        input[type="text"], input[type="file"], select, input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--soft); border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
         
-        #color-picker { height: 45px; cursor: pointer; border: 1px solid var(--soft); }
-        #library { max-height: 100px; overflow-y: auto; background: #fffcfd; border: 1px solid var(--soft); border-radius: 10px; font-size: 0.75rem; }
-        .lib-item { padding: 8px 12px; border-bottom: 1px solid var(--light); cursor: pointer; color: #555; }
-        .lib-item:hover { background: var(--light); color: var(--accent); }
-        
-        #img-preview-wrap { background: #fffcfd; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; display: none; border: 1px dashed var(--soft); }
+        /* SOURCE SWITCHER */
+        .source-switch { display: flex; gap: 10px; margin-bottom: 15px; background: #fffcfd; padding: 10px; border-radius: 10px; border: 1px solid var(--soft); }
+        .radio-label { display: flex; align-items: center; font-size: 0.8rem; color: #555; cursor: pointer; }
+        .radio-label input { margin-right: 5px; }
+
+        #img-preview-wrap { background: #fffcfd; border-radius: 10px; padding: 15px; text-align: center; margin-top: 10px; display: none; border: 1px dashed var(--soft); }
         #canvas-preview { max-width: 100%; border-radius: 8px; }
-        #viewer { flex-grow: 1; position: relative; background: #fff; }
+
+        .btn { padding: 12px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        .primary { background: var(--accent); color: white; margin-top: 10px; }
         
         #hero-portal { margin-top: 30px; padding: 15px; background: #fdf2f4; border-radius: 15px; border: 1px dashed var(--soft); }
-        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .share-btn { background: #fff; color: var(--accent); border: 1px solid var(--soft); font-size: 0.7rem; padding: 8px; border-radius: 15px; cursor:pointer;}
+        #viewer { flex-grow: 1; background: #fff; }
     </style>
 </head>
 <body>
@@ -57,16 +54,25 @@
     <div id="main-studio">
         <div id="sidebar">
             <h1>🎨 Artisan Studio Pro</h1>
-            
+
             <div class="section">
-                <label>1. Design Content (Text or Image)</label>
-                <input type="text" id="text-input" placeholder="Type text (e.g. AMOR)..." oninput="generateFromText()">
-                <label style="margin-top:10px; font-size:0.6rem; color:#888;">OR UPLOAD SKETCH</label>
-                <input type="file" id="file-input" accept="image/*" onchange="processImage(event)">
-                <div id="img-preview-wrap">
-                    <canvas id="canvas-preview"></canvas>
-                    <label>Cleanup Threshold</label>
-                    <input type="range" id="threshold-slider" min="0" max="255" value="128" oninput="applyThreshold()">
+                <label>1. Design Source</label>
+                <div class="source-switch">
+                    <label class="radio-label"><input type="radio" name="source" value="text" checked onclick="setSource('text')"> Use Text</label>
+                    <label class="radio-label"><input type="radio" name="source" value="image" onclick="setSource('image')"> Use Image</label>
+                </div>
+
+                <div id="text-controls">
+                    <input type="text" id="text-input" placeholder="Type text (e.g. AMOR)..." oninput="generateFromText()">
+                </div>
+
+                <div id="image-controls" style="display:none;">
+                    <input type="file" id="file-input" accept="image/*" onchange="processImage(event)">
+                    <div id="img-preview-wrap">
+                        <canvas id="canvas-preview"></canvas>
+                        <label style="margin-top:10px;">Cleanup Threshold</label>
+                        <input type="range" id="threshold-slider" min="0" max="255" value="128" oninput="applyThreshold()">
+                    </div>
                 </div>
             </div>
 
@@ -75,59 +81,50 @@
                 <select id="mode-select" onchange="updateModel()">
                     <option value="cutter">Cookie Cutter</option>
                     <option value="roller">Artisan Roller</option>
-                    <option value="topper">Cake Topper</option>
                     <option value="stamp">Stamp / Embosser</option>
+                    <option value="topper">Cake Topper</option>
                     <option value="stencil">Stencil Plate</option>
                 </select>
-                <button class="btn primary" onclick="exportFile()">💾 DOWNLOAD STL FILE</button>
             </div>
 
             <div class="section">
-                <label>3. Appearance</label>
-                <input type="color" id="color-picker" value="#d00056" oninput="updateModel()">
-                <select id="view-mode" onchange="updateModel()">
-                    <option value="solid">Matte Finish</option>
-                    <option value="glossy">Glossy Silk</option>
-                    <option value="transparent">Transparent View</option>
-                </select>
-            </div>
-
-            <div class="section">
-                <label>4. Project History</label>
-                <div id="library"></div>
-            </div>
-
-            <div class="section">
-                <label>Share the Love</label>
-                <div class="social-grid">
-                    <button class="share-btn" onclick="share('fb')">Facebook</button>
-                    <button class="share-btn" onclick="share('pin')">Pinterest</button>
+                <label>3. Precision Adjustments</label>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1">
+                        <span style="font-size:0.6rem">Blade Height</span>
+                        <input type="range" id="height-slider" min="5" max="30" value="15" oninput="updateModel()">
+                    </div>
+                    <div style="flex:1">
+                        <span style="font-size:0.6rem">Handle Grip</span>
+                        <input type="range" id="round-slider" min="0" max="5" value="2" oninput="updateModel()">
+                    </div>
                 </div>
+                <label style="margin-top:10px;">Visual Color</label>
+                <input type="color" id="color-picker" value="#d00056" oninput="updateModel()">
             </div>
+
+            <button class="btn primary" onclick="exportFile()">💾 DOWNLOAD STL FILE</button>
 
             <div id="hero-portal">
                 <label style="color: #888;">Hero's Message Portal</label>
                 <input type="text" id="new-reflection" placeholder="Update login message...">
-                <button class="btn" style="background:white; color:var(--accent); border:1px solid var(--soft); width:100%;" onclick="updateReflection()">Update Reflection</button>
+                <button class="btn" style="background:white; color:var(--accent); border:1px solid var(--soft); font-size:0.75rem;" onclick="updateReflection()">Update Message</button>
             </div>
-
-            <p style="text-align:center; font-size: 0.65rem; color: #ccc; margin-top: 25px;">
-                FORTY YEARS • SURVIVOR STRONG
-            </p>
         </div>
         <div id="viewer"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/exporters/STLExporter.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/exporters/OBJExporter.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/potrace@1.1.2/dist/potrace.min.js"></script>
 
     <script>
         const pass = "Amor@1985";
-        let scene, camera, renderer, group, font, currentShapes, rawImgData;
+        let scene, camera, renderer, group, font, rawImgData;
+        let currentShapes = []; 
+        let currentSource = 'text'; // Tracks if we are using text or image
 
-        // --- 1. INITIALIZATION & LOGIN ---
+        // --- LOGIN & INIT ---
         window.onload = function() {
             const savedMsg = localStorage.getItem('liza_reflection');
             if (savedMsg) document.getElementById('display-reflection').innerText = savedMsg;
@@ -135,59 +132,66 @@
 
         function updateReflection() {
             const msg = document.getElementById('new-reflection').value;
-            if (msg) { localStorage.setItem('liza_reflection', msg); alert("Reflection updated! ❤️"); }
+            if (msg) { localStorage.setItem('liza_reflection', msg); alert("Message Updated! ❤️"); }
         }
 
         function checkPass() {
             if (document.getElementById('pass-input').value === pass) {
                 document.getElementById('login-overlay').style.display = 'none';
-                const s = document.getElementById('main-studio');
-                s.style.display = 'flex';
-                setTimeout(() => { s.style.opacity = '1'; init(); }, 100);
+                document.getElementById('main-studio').style.display = 'flex';
+                setTimeout(() => { document.getElementById('main-studio').style.opacity = '1'; init(); }, 100);
             } else { document.getElementById('error-msg').style.display = 'block'; }
         }
 
         function init() {
             if (renderer) return;
             scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
-            
-            // CAMERA SETUP
             camera = new THREE.PerspectiveCamera(45, (window.innerWidth - 380) / window.innerHeight, 0.1, 1000);
             camera.position.set(0, -120, 160); camera.lookAt(0,0,0);
             
-            // RENDERER SETUP
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth - 380, window.innerHeight);
             document.getElementById('viewer').appendChild(renderer.domElement);
             
-            // LIGHTING
-            scene.add(new THREE.HemisphereLight(0xffffff, 0xeeeeee, 1.1));
-            const pLight = new THREE.PointLight(0xffffff, 0.4); pLight.position.set(50, 50, 50); scene.add(pLight);
-            
-            // OBJECT GROUP
+            scene.add(new THREE.HemisphereLight(0xffffff, 0xbbbbbb, 1.2));
             group = new THREE.Group(); scene.add(group);
             
-            // LOAD FONT
             new THREE.FontLoader().load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', (f) => {
-                font = f; generateFromText(); renderLibrary();
+                font = f; generateFromText();
             });
             animate();
         }
 
-        // --- 2. IMAGE & TEXT PROCESSING ---
-        function generateFromText() {
-            const text = document.getElementById('text-input').value || "AMOR";
-            currentShapes = font.generateShapes(text, 25); 
-            updateModel();
+        // --- SOURCE SWITCHING ---
+        function setSource(mode) {
+            currentSource = mode;
+            document.getElementById('text-controls').style.display = mode === 'text' ? 'block' : 'none';
+            document.getElementById('image-controls').style.display = mode === 'image' ? 'block' : 'none';
+            
+            // Trigger update based on what is selected
+            if(mode === 'text') generateFromText();
+            else if(rawImgData) applyThreshold(); // re-process image if it exists
         }
 
+        // --- TEXT LOGIC ---
+        function generateFromText() {
+            if(currentSource !== 'text') return;
+            const text = document.getElementById('text-input').value || "AMOR";
+            if(font) {
+                currentShapes = font.generateShapes(text, 25);
+                updateModel();
+            }
+        }
+
+        // --- IMAGE LOGIC ---
         function processImage(e) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
                     document.getElementById('img-preview-wrap').style.display = 'block';
-                    const canvas = document.getElementById('canvas-preview'); const ctx = canvas.getContext('2d');
+                    const canvas = document.getElementById('canvas-preview'); 
+                    const ctx = canvas.getContext('2d');
                     canvas.width = img.width; canvas.height = img.height;
                     ctx.drawImage(img, 0, 0); 
                     rawImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -199,18 +203,28 @@
         }
 
         function applyThreshold() {
-            const canvas = document.getElementById('canvas-preview'); const ctx = canvas.getContext('2d');
+            if(!rawImgData) return;
+            // 1. Thresholding Pixel Data
+            const canvas = document.getElementById('canvas-preview'); 
+            const ctx = canvas.getContext('2d');
             const thresh = document.getElementById('threshold-slider').value;
             const imgData = new ImageData(new Uint8ClampedArray(rawImgData.data), rawImgData.width, rawImgData.height);
+            
             for (let i = 0; i < imgData.data.length; i += 4) {
+                // Simple average for grayscale
                 const avg = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
-                const val = avg > thresh ? 255 : 0;
-                imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = val;
+                // Invert logic: Potrace traces BLACK. If pixel is darker than threshold, make it black (1).
+                const val = avg < thresh ? 0 : 255; 
+                imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = val; 
+                imgData.data[i+3] = 255; // Alpha full
             }
             ctx.putImageData(imgData, 0, 0);
+
+            // 2. Potrace Vectorization
             Potrace.loadImage(canvas.toDataURL());
             Potrace.process(() => {
                 const pathStr = Potrace.getSVGPath(); 
+                // Convert SVG path to Three.js Shapes
                 const shapePath = new THREE.ShapePath();
                 const cmds = pathStr.match(/[a-df-z][^a-df-z]*/ig);
                 if(cmds) {
@@ -220,123 +234,114 @@
                         if (type === 'L') shapePath.lineTo(a[0], -a[1]);
                         if (type === 'C') shapePath.bezierCurveTo(a[0], -a[1], a[2], -a[3], a[4], -a[5]);
                     });
-                    currentShapes = shapePath.toShapes(); 
-                    updateModel();
+                    
+                    if(currentSource === 'image') {
+                        currentShapes = shapePath.toShapes(); 
+                        // Center the image shape
+                        if(currentShapes.length > 0) updateModel();
+                    }
                 }
             });
         }
 
-        // --- 3. 3D MODEL GENERATION ---
+        // --- 3D GENERATION ---
         function updateModel() {
             if (!currentShapes || !group) return;
 
-            // *** THE CRITICAL FIX: CLEAR PREVIOUS OBJECTS ***
+            // CLEANUP: Remove old mesh
             while(group.children.length > 0) { 
-                const obj = group.children[0];
-                if(obj.geometry) obj.geometry.dispose();
-                if(obj.material) obj.material.dispose();
-                group.remove(obj); 
+                const old = group.children[0];
+                if(old.geometry) old.geometry.dispose();
+                group.remove(old); 
             }
 
             const mode = document.getElementById('mode-select').value;
             const color = document.getElementById('color-picker').value;
-            const vMode = document.getElementById('view-mode').value;
             
-            let mat = new THREE.MeshStandardMaterial({ 
-                color: color, 
-                transparent: vMode === 'transparent', 
-                opacity: vMode === 'transparent' ? 0.4 : 1.0, 
-                roughness: vMode === 'glossy' ? 0.1 : 0.7,
-                metalness: vMode === 'glossy' ? 0.2 : 0.0
-            });
+            // Customization Sliders
+            const height = parseInt(document.getElementById('height-slider').value);
+            const roundness = parseInt(document.getElementById('round-slider').value);
 
-            // Center the shapes
-            const tempGeo = new THREE.ShapeGeometry(currentShapes);
-            tempGeo.computeBoundingBox();
-            const centerOffset = -0.5 * (tempGeo.boundingBox.max.x - tempGeo.boundingBox.min.x);
-            const centerOffsetY = -0.5 * (tempGeo.boundingBox.max.y - tempGeo.boundingBox.min.y);
+            let mat = new THREE.MeshStandardMaterial({ color: color });
+
+            // Calculate Center to keep model in view
+            const geometry = new THREE.ShapeGeometry(currentShapes);
+            geometry.computeBoundingBox();
+            const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+            const yMid = - 0.5 * ( geometry.boundingBox.max.y - geometry.boundingBox.min.y );
+            geometry.dispose(); // clean up temp geometry
 
             currentShapes.forEach(shape => {
                 if (mode === 'roller') {
-                    // Create Roller Body
+                    // Roller Base
                     const cyl = new THREE.Mesh(new THREE.CylinderGeometry(20, 20, 80, 48), mat);
                     cyl.rotation.z = Math.PI / 2;
                     if(group.children.length === 0) group.add(cyl);
 
-                    // Create Wrapped Pattern (Simple Projection)
+                    // Pattern
                     const ext = new THREE.ExtrudeGeometry(shape, {depth: 2, bevelEnabled:false});
                     const mesh = new THREE.Mesh(ext, mat);
                     mesh.scale.set(0.3, 0.3, 0.3);
-                    mesh.position.set(centerOffset*0.3, 20, centerOffsetY*0.3); // Sit on top of roller
+                    // Wrap projection roughly
+                    mesh.position.set(xMid*0.3, 20, yMid*0.3); 
                     group.add(mesh);
-                    
+
                 } else if (mode === 'stencil') {
-                     const plate = new THREE.Shape(); 
-                     plate.moveTo(-60, -60); plate.lineTo(60, -60); plate.lineTo(60, 60); plate.lineTo(-60, 60);
-                     plate.holes = [shape]; 
-                     group.add(new THREE.Mesh(new THREE.ExtrudeGeometry(plate, {depth:1}), mat));
+                    // Stencil Plate
+                    const plate = new THREE.Shape(); 
+                    plate.moveTo(-60, -60); plate.lineTo(60, -60); plate.lineTo(60, 60); plate.lineTo(-60, 60);
+                    plate.holes = [shape]; 
+                    group.add(new THREE.Mesh(new THREE.ExtrudeGeometry(plate, {depth:1}), mat));
+
                 } else {
-                    // Cookie Cutter Logic
-                    const blade = new THREE.ExtrudeGeometry(shape, { depth: 15, bevelEnabled: true, bevelSize: 0.3, bevelThickness: 0.5 });
-                    const bMesh = new THREE.Mesh(blade, mat);
-                    // Center the text
-                    bMesh.position.set(centerOffset, centerOffsetY, 0);
-                    group.add(bMesh);
+                    // COOKIE CUTTER / STAMP
+                    // 1. The Blade (Cutting Edge)
+                    const bladeGeo = new THREE.ExtrudeGeometry(shape, { 
+                        depth: height, 
+                        bevelEnabled: true, 
+                        bevelSize: 0.2, 
+                        bevelThickness: 0.2 
+                    });
+                    const bladeMesh = new THREE.Mesh(bladeGeo, mat);
+                    bladeMesh.position.set(xMid, yMid, 0);
+                    group.add(bladeMesh);
 
-                    const handle = new THREE.ExtrudeGeometry(shape, { depth: 3, bevelEnabled: true, bevelSize: 2, bevelThickness: 2 });
-                    const hMesh = new THREE.Mesh(handle, mat);
-                    hMesh.position.set(centerOffset, centerOffsetY, -3);
-                    group.add(hMesh);
-
-                    if (mode === 'topper') {
+                    // 2. The Handle (Base)
+                    const handleGeo = new THREE.ExtrudeGeometry(shape, { 
+                        depth: 3, 
+                        bevelEnabled: true, 
+                        bevelSize: roundness, 
+                        bevelThickness: roundness 
+                    });
+                    const handleMesh = new THREE.Mesh(handleGeo, mat);
+                    handleMesh.position.set(xMid, yMid, -3);
+                    group.add(handleMesh);
+                    
+                    if(mode === 'topper') {
                         const pin = new THREE.Mesh(new THREE.BoxGeometry(4, 60, 2), mat);
                         pin.position.set(0, -50, -1);
                         group.add(pin);
                     }
                 }
             });
-            saveToHistory();
         }
-
-        // --- 4. UTILITIES ---
-        function saveToHistory() {
-            const text = document.getElementById('text-input').value;
-            if (!text || text === "AMOR") return;
-            let lib = JSON.parse(localStorage.getItem('baker_lib') || '[]');
-            if (!lib.includes(text)) { lib.unshift(text); localStorage.setItem('baker_lib', JSON.stringify(lib.slice(0, 5))); renderLibrary(); }
-        }
-
-        function renderLibrary() {
-            const lib = JSON.parse(localStorage.getItem('baker_lib') || '[]');
-            const container = document.getElementById('library');
-            container.innerHTML = lib.map(t => `<div class="lib-item" onclick="restore('${t}')">${t}</div>`).join('');
-        }
-        
-        function restore(t) { document.getElementById('text-input').value = t; generateFromText(); }
 
         function exportFile() {
-            const format = "stl"; // Defaulting to STL for simplicity
             const res = new THREE.STLExporter().parse(group);
             const link = document.createElement('a'); 
             link.href = URL.createObjectURL(new Blob([res], {type: 'text/plain'}));
-            link.download = 'LizaDesign.stl'; 
+            link.download = 'Liza_Design.stl'; 
             link.click();
-        }
-        
-        function share(p) {
-            const url = encodeURIComponent(window.location.href);
-            if (p === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
-            if (p === 'pin') window.open(`https://www.pinterest.com/pin/create/button/?url=${url}`);
         }
 
         function animate() { 
             requestAnimationFrame(animate); 
-            if (group) group.rotation.y += 0.005; 
-            if (renderer) renderer.render(scene, camera); 
+            if(group) group.rotation.y += 0.005; 
+            renderer.render(scene, camera); 
         }
 
         window.addEventListener('resize', () => { 
-            if (renderer && camera) { 
+            if(renderer && camera) {
                 camera.aspect = (window.innerWidth-380)/window.innerHeight; 
                 camera.updateProjectionMatrix(); 
                 renderer.setSize(window.innerWidth-380, window.innerHeight); 
